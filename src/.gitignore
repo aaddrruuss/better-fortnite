@@ -1,4 +1,3 @@
-local_commands.py
 *.json
 **/__pycache__/
 /__pycache__/
