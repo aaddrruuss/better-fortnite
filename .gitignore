@@ -2,6 +2,7 @@ autentificacion.py
 bot.py
 venv/
 .env
+*.json
 *.spec
 build/
 **/__pycache__/

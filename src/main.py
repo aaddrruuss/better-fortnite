@@ -20,7 +20,7 @@ def on_switch_account_down():
         get_display_name_for_account(accounts_list[current_account_index][1]),
         event_loop
     ).result()
-    text = f"Cuenta actual: {display_name}"
+    text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
     print(f"[+] {text}")
     update_popup(text)
 
@@ -38,7 +38,7 @@ def on_switch_account_right():
                 accounts_list.append((new_filename, data))
                 current_account_index = len(accounts_list) - 1
                 display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
-                text = f"Cuenta actual: {display_name}"
+                text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
                 print(f"[+] Nueva cuenta agregada: {text}")
                 update_popup(text)
             except Exception as ex:
@@ -51,7 +51,7 @@ def on_switch_account_right():
             get_display_name_for_account(accounts_list[current_account_index][1]),
             event_loop
         ).result()
-        text = f"Cuenta actual: {display_name}"
+        text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
 
@@ -68,7 +68,7 @@ def on_switch_account_left():
             get_display_name_for_account(accounts_list[current_account_index][1]),
             event_loop
         ).result()
-        text = f"Cuenta actual: {display_name}"
+        text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
 
@@ -112,7 +112,7 @@ def main():
         ).result()
         print(f"[*] Se encontraron {len(accounts_list)} cuenta(s).")
         print(f"[*] Cuenta actual: {display_name}")
-        update_popup(f"Cuenta actual: {display_name}")
+        update_popup(f"Cuenta actual: [{current_account_index + 1}] {display_name}")
 
     # Funciones que se ejecutan al presionar las hotkeys
     def on_leave_party():
