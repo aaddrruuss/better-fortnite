@@ -1,0 +1,7 @@
+autentificacion.py
+bot.py
+venv/
+.env
+*.spec
+build/
+**/__pycache__/
