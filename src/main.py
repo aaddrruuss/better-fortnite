@@ -8,6 +8,7 @@ import os
 from account.manager import load_all_accounts, authenticate, get_display_name_for_account
 from commands.refresh import command_leave_party, command_skip, command_play_fortnite
 from ui.popup import popup_loop, update_popup
+from config import display_names
 
 # Variables globales
 accounts_list = []      # Lista de tuplas (filename, data)
@@ -16,10 +17,10 @@ event_loop = None       # Se asignará el loop en main
 
 def on_switch_account_down():
     global accounts_list, current_account_index, event_loop
-    display_name = asyncio.run_coroutine_threadsafe(
-        get_display_name_for_account(accounts_list[current_account_index][1]),
-        event_loop
-    ).result()
+    if current_account_index < len(display_names):
+        display_name = display_names[current_account_index]
+    else:
+        display_name = "Unknown"
     text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
     print(f"[+] {text}")
     update_popup(text)
@@ -36,9 +37,12 @@ def on_switch_account_right():
             try:
                 data = asyncio.run_coroutine_threadsafe(authenticate(new_filename), event_loop).result()
                 accounts_list.append((new_filename, data))
+                
+                new_display = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
+                display_names.append(new_display)
+                
                 current_account_index = len(accounts_list) - 1
-                display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
-                text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
+                text = f"Cuenta actual: [{current_account_index + 1}] {new_display}"
                 print(f"[+] Nueva cuenta agregada: {text}")
                 update_popup(text)
             except Exception as ex:
@@ -47,10 +51,10 @@ def on_switch_account_right():
             print("[*] Permaneciendo en la cuenta actual.")
     else:
         current_account_index += 1
-        display_name = asyncio.run_coroutine_threadsafe(
-            get_display_name_for_account(accounts_list[current_account_index][1]),
-            event_loop
-        ).result()
+        if current_account_index < len(display_names):
+            display_name = display_names[current_account_index]
+        else:
+            display_name = "Unknown"
         text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
@@ -64,10 +68,10 @@ def on_switch_account_left():
         print("[!] Ya estás en la primera cuenta. No hay cuenta anterior.")
     else:
         current_account_index -= 1
-        display_name = asyncio.run_coroutine_threadsafe(
-            get_display_name_for_account(accounts_list[current_account_index][1]),
-            event_loop
-        ).result()
+        if current_account_index < len(display_names):
+            display_name = display_names[current_account_index]
+        else:
+            display_name = "Unknown"
         text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
@@ -75,6 +79,29 @@ def on_switch_account_left():
 def start_event_loop(loop: asyncio.AbstractEventLoop):
     asyncio.set_event_loop(loop)
     loop.run_forever()
+
+loop = asyncio.new_event_loop()
+event_loop = loop
+loop_thread = threading.Thread(target=start_event_loop, args=(loop,), daemon=True)
+loop_thread.start()
+
+def on_leave_party():
+    device_auth_data = accounts_list[current_account_index][1]
+    asyncio.run_coroutine_threadsafe(command_leave_party(device_auth_data), loop)
+
+def on_skip():
+    device_auth_data = accounts_list[current_account_index][1]
+    asyncio.run_coroutine_threadsafe(command_skip(device_auth_data), loop)
+
+def on_play_fortnite():
+    device_auth_data = accounts_list[current_account_index][1]
+    asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), loop)
+
+def close_program():
+    print("Saliendo del programa")
+    time.sleep(1)
+    os.system("exit")
+
 
 def main():
     global accounts_list, current_account_index, event_loop
@@ -86,12 +113,7 @@ def main():
     import ui.popup
     while ui.popup.popup_root is None:
         time.sleep(0.1)
-
-    # Crear el event loop en un hilo separado
-    loop = asyncio.new_event_loop()
-    event_loop = loop
-    loop_thread = threading.Thread(target=start_event_loop, args=(loop,), daemon=True)
-    loop_thread.start()
+    
 
     # Cargar cuentas existentes
     accounts_list = load_all_accounts()
@@ -102,30 +124,19 @@ def main():
             data = asyncio.run_coroutine_threadsafe(authenticate(new_filename), loop).result()
             accounts_list.append((new_filename, data))
             current_account_index = 0
+
+            display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), loop).result()
+            display_names.append(display_name)
         else:
             print("No se agregó ninguna cuenta. Saliendo...")
             return
     else:
-        display_name = asyncio.run_coroutine_threadsafe(
-            get_display_name_for_account(accounts_list[current_account_index][1]),
-            loop
-        ).result()
+        for fname, data in accounts_list:
+            display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), loop).result()
+            display_names.append(display_name)
         print(f"[*] Se encontraron {len(accounts_list)} cuenta(s).")
         print(f"[*] Cuenta actual: {display_name}")
         update_popup(f"Cuenta actual: [{current_account_index + 1}] {display_name}")
-
-    # Funciones que se ejecutan al presionar las hotkeys
-    def on_leave_party():
-        device_auth_data = accounts_list[current_account_index][1]
-        asyncio.run_coroutine_threadsafe(command_leave_party(device_auth_data), loop)
-
-    def on_skip():
-        device_auth_data = accounts_list[current_account_index][1]
-        asyncio.run_coroutine_threadsafe(command_skip(device_auth_data), loop)
-
-    def on_play_fortnite():
-        device_auth_data = accounts_list[current_account_index][1]
-        asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), loop)
 
     # Registrar hotkeys
     keyboard.add_hotkey('alt gr+l', on_leave_party)
@@ -134,6 +145,7 @@ def main():
     keyboard.add_hotkey('alt gr+right', on_switch_account_right)
     keyboard.add_hotkey('alt gr+left', on_switch_account_left)
     keyboard.add_hotkey('alt gr+down', on_switch_account_down)
+    keyboard.add_hotkey('alt gr + esc', close_program)
 
     # Mostrar instrucciones en consola
     print("========================================")
@@ -147,7 +159,7 @@ def main():
     print("========================================")
     print("Presione ALTGR+ESC para salir.")
     
-    keyboard.wait('alt gr+esc')
+    keyboard.wait('f+g+h+t+y+d+s+q+d+u+i+p')
     print("Saliendo...")
     loop.call_soon_threadsafe(loop.stop)
     import ui.popup
