@@ -12,3 +12,5 @@ OAUTH_TOKEN_URL = "https://account-public-service-prod03.ol.epicgames.com/accoun
 DEVICE_CODE_URL = "https://account-public-service-prod.ol.epicgames.com/account/api/oauth/deviceAuthorization"
 
 display_names = []
+
+FORTNITE_DIR = "C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64"

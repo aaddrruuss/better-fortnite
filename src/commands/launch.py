@@ -42,10 +42,10 @@ async def get_pc_exchange_code(switch_access_token: str) -> str:
     pc_exchange_code = await getExchangeCode(pc_token)
     return pc_exchange_code
 
-async def play_fortnite(switch_access_token: str, account_id: str) -> str:
+async def play_fortnite(switch_access_token: str, account_id: str, fortnite_dir: str) -> str:
     pc_exchange_code = await get_pc_exchange_code(switch_access_token)
     launch_link = (
-        'start /d "C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64" '
+        f'start /d "{fortnite_dir}" '
         'FortniteLauncher.exe '
         '-AUTH_LOGIN=unused '
         f'-AUTH_PASSWORD={pc_exchange_code} '

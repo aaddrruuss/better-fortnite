@@ -2,6 +2,8 @@ import os
 import sys
 import threading
 import asyncio
+import tkinter as tk
+from tkinter import filedialog
 
 # ======================================================
 # SOLUCIÓN RÁPIDA PARA PODER IMPORTAR config.py DESDE EL DIRECTORIO PADRE (src/)
@@ -10,8 +12,8 @@ parent_dir = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(parent_dir)
 
 import customtkinter as ctk
-import tkinter.ttk as ttk
-import config  # Para acceder a display_names
+import tkinter.ttk as ttk  # Usaremos ttk.Separator
+import config  # Para acceder a display_names y FORTNITE_DIR
 
 from account.manager import load_all_accounts, get_display_name_for_account
 
@@ -24,12 +26,11 @@ class BetterFortniteApp(ctk.CTk):
         self.title("Better Fortnite")
         self.geometry("800x600")
 
-        # Cargar cuentas guardadas (si existen)
+        # Cargar las cuentas guardadas (si existen)
         self.accounts_list = load_all_accounts()  # Lista de tuplas (filename, data)
         config.display_names.clear()
         if self.accounts_list:
             for fname, data in self.accounts_list:
-                # Se obtiene el display name de forma sincrónica para el arranque
                 display = asyncio.run(get_display_name_for_account(data))
                 config.display_names.append(display)
             self.current_account_index = 0
@@ -47,7 +48,7 @@ class BetterFortniteApp(ctk.CTk):
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True)
 
-        # Sidebar con color personalizado
+        # Sidebar
         self.sidebar_frame = ctk.CTkFrame(
             self.main_frame,
             width=200,
@@ -105,7 +106,7 @@ class BetterFortniteApp(ctk.CTk):
         separator = ttk.Separator(parent, orient="horizontal")
         separator.pack(fill="x", pady=20, padx=10)
 
-        # Sub-frame para "Change Account" anclado al borde inferior derecho
+        # Sub-frame para "Change Account"
         self.account_frame = ctk.CTkFrame(parent, fg_color="transparent")
         self.account_frame.place(relx=0.8, rely=1.0, anchor="se", x=-10, y=-10)
 
@@ -131,7 +132,7 @@ class BetterFortniteApp(ctk.CTk):
         self.account_optionmenu.pack(anchor="e")
 
     def on_select_account(self, choice):
-        """Si se selecciona 'Add new account...' se inicia la autenticación; de lo contrario, cambia de cuenta."""
+        """Si se selecciona 'Add new account...' inicia autenticación; si no, cambia la cuenta."""
         if choice == "Add new account...":
             self.add_new_account()
         else:
@@ -146,7 +147,7 @@ class BetterFortniteApp(ctk.CTk):
                 self.append_log(f"[!] Error al cambiar de cuenta: {e}")
 
     def add_new_account(self):
-        """Inicia el proceso para agregar una nueva cuenta en un hilo aparte."""
+        import threading
         threading.Thread(target=self._authenticate_new_account, daemon=True).start()
 
     def _authenticate_new_account(self):
@@ -231,7 +232,7 @@ class BetterFortniteApp(ctk.CTk):
             font=("General Sans Font", 20, "bold")
         )
         self.welcome_label.pack(pady=20)
-        # Botón Open Fortnite debajo del welcome
+        # Botón "Open Fortnite" debajo del welcome
         open_btn = ctk.CTkButton(
             self.variable_frame,
             text="Open Fortnite",
@@ -265,12 +266,38 @@ class BetterFortniteApp(ctk.CTk):
             self.mode_switch.deselect()
         else:
             self.mode_switch.select()
+        # Nuevo: Botón para seleccionar el directorio de Fortnite
+        select_dir_btn = ctk.CTkButton(
+            self.variable_frame,
+            text="Select Fortnite Directory",
+            command=self.select_fortnite_dir,
+            width=220,
+            height=40,
+            corner_radius=10
+        )
+        select_dir_btn.pack(pady=10)
+        # Label para mostrar el directorio actual
+        self.dir_label = ctk.CTkLabel(
+            self.variable_frame,
+            text=f"Current Fortnite Directory:\n{config.FORTNITE_DIR}",
+            font=("Arial", 12)
+        )
+        self.dir_label.pack(pady=10)
         btn_back = ctk.CTkButton(
             self.variable_frame,
             text="Back",
             command=self.show_home
         )
         btn_back.pack(pady=10)
+
+    def select_fortnite_dir(self):
+        """Abre el explorador de archivos para seleccionar la carpeta que contiene FortniteLauncher.exe."""
+        selected = filedialog.askdirectory(initialdir=config.FORTNITE_DIR, title="Select Fortnite Directory")
+        if selected:
+            config.FORTNITE_DIR = selected
+            self.append_log(f"[+] Fortnite directory updated: {selected}")
+            if hasattr(self, 'dir_label'):
+                self.dir_label.configure(text=f"Current Fortnite Directory:\n{config.FORTNITE_DIR}")
 
     def show_placeholder(self):
         for widget in self.content_frame.winfo_children():
@@ -303,28 +330,13 @@ class BetterFortniteApp(ctk.CTk):
             self.mode_switch.configure(text="Dark Mode")
             self.mode_switch.deselect()
 
-    def update_welcome(self, display_name: str):
-        self.current_display_name = display_name
-        try:
-            if hasattr(self, 'welcome_label') and self.welcome_label.winfo_exists():
-                self.welcome_label.configure(text="WELCOME " + display_name)
-        except Exception:
-            pass
-
-    def append_log(self, message: str):
-        if hasattr(self, 'log_text'):
-            self.log_text.configure(state="normal")
-            self.log_text.insert("end", message + "\n")
-            self.log_text.configure(state="disabled")
-            self.log_text.see("end")
-
     def open_fortnite(self):
-        """Ejecuta la lógica para cerrar Fortnite (si está abierto) y abrir Fortnite con la cuenta activa."""
+        """Cierra Fortnite si está abierto y lo abre en la cuenta activa."""
         if self.current_account_index == -1 or not self.accounts_list:
             self.append_log("[!] No hay cuenta activa.")
             return
         device_auth_data = self.accounts_list[self.current_account_index][1]
-        # Ejecutar la función asíncrona en un hilo aparte para no bloquear la GUI
+        import threading
         threading.Thread(target=lambda: asyncio.run(self._async_open_fortnite(device_auth_data)), daemon=True).start()
 
     async def _async_open_fortnite(self, device_auth_data: dict):
@@ -333,6 +345,26 @@ class BetterFortniteApp(ctk.CTk):
             await command_play_fortnite(device_auth_data)
         except Exception as e:
             self.append_log(f"[!] Error al lanzar Fortnite: {e}")
+
+    def update_welcome(self, display_name: str):
+        self.current_display_name = display_name
+        if hasattr(self, 'welcome_label'):
+            self.welcome_label.configure(text="WELCOME " + display_name)
+
+    def append_log(self, message: str):
+        if hasattr(self, 'log_text'):
+            self.log_text.configure(state="normal")
+            self.log_text.insert("end", message + "\n")
+            self.log_text.configure(state="disabled")
+            self.log_text.see("end")
+
+    def setup_hotkeys(self):
+        try:
+            import keyboard
+            keyboard.add_hotkey('alt gr+left', lambda: self.switch_account_left())
+            keyboard.add_hotkey('alt gr+right', lambda: self.switch_account_right())
+        except Exception as e:
+            self.append_log(f"[!] Error configurando hotkeys: {e}")
 
 if __name__ == "__main__":
     app = BetterFortniteApp()

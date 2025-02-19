@@ -5,6 +5,7 @@ from auth.auth import new_token
 from commands.party import getPartyId, leaveParty
 from commands.stw import OpenCardPackBatch, claimMissionAlertRewards, claimQuestRewards
 from commands.launch import play_fortnite
+import config  # Importar config para acceder a FORTNITE_DIR
 
 async def refresh_access_token(device_auth_data: dict) -> str:
     token_data = await new_token(
@@ -43,7 +44,7 @@ async def command_skip(device_auth_data: dict):
 async def command_play_fortnite(device_auth_data: dict):
     try:
         print("[*] Ejecutando comando: Play Fortnite")
-        # Se verifica en un bucle si el proceso ya está abierto.
+        # Verificar si Fortnite ya está abierto y cerrarlo si es necesario
         while True:
             tasks = subprocess.check_output("tasklist", shell=True, encoding="cp850")
             if "FortniteLauncher.exe" in tasks:
@@ -53,7 +54,8 @@ async def command_play_fortnite(device_auth_data: dict):
                 break
         access_token = await refresh_access_token(device_auth_data)
         account_id = device_auth_data["account_id"]
-        launch_link = await play_fortnite(access_token, account_id)
+        # Se pasa el directorio desde config.FORTNITE_DIR
+        launch_link = await play_fortnite(access_token, account_id, config.FORTNITE_DIR)
         print("[+] Lanzando Fortnite...")
         os.system(launch_link)
     except Exception as e:
