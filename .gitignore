@@ -7,3 +7,4 @@ venv/
 *.spec
 build/
 **/__pycache__/
+*.ico
