@@ -1,6 +1,7 @@
 autentificacion.py
 bot.py
 venv/
+.venv/
 .env
 *.json
 *.spec
