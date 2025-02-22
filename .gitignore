@@ -3,7 +3,6 @@ bot.py
 build/
 venv/
 .venv/
-.env
 *.json
 *.spec
 build/
