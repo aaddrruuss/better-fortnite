@@ -9,7 +9,7 @@ keyboard==0.13.5
 multidict==6.1.0
 packaging==24.2
 pefile==2023.2.7
-propcache==0.2.1
+propcache==0.3.0
 pyinstaller==6.12.0
 pyinstaller-hooks-contrib==2025.1
 python-dotenv==1.0.1
