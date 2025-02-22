@@ -9,4 +9,4 @@ def cmd_interface():
     print("  - AltGr+Down: Displays the current account in the console")
     print("  - AltGr+Q: Opens FortniteDB.com in the browser")
     print("================================================================================")
-    print("Press ALTGR+ESC to exit.")
+    print("Press ALTGR+ESC to exit.\n\n\n\n")
