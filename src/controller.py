@@ -94,7 +94,9 @@ def on_play_fortnite():
     asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), event_loop)
 
 def open_fortniteDB():
-    webbrowser.open("fortniteDB.com")
+    print("Abriendo FortniteDB.com en el navegador...")
+    url = "https://fortniteDB.com"
+    webbrowser.open(url)
 
 # ================================================================
 # Funciones auxiliares para inicializar el event loop, hotkeys y cargar cuentas
