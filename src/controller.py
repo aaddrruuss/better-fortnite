@@ -3,7 +3,6 @@ import threading
 import time
 import webbrowser
 import keyboard
-import subprocess
 import os
 
 
@@ -33,6 +32,7 @@ def on_switch_account_down():
         display_name = "Unknown"
     text = f"Current account: [{current_account_index + 1}] {display_name}"
     os.system("cls")
+    better_fortnite_ascii()
     print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
     update_popup(text)
     cmd_interface()
@@ -58,15 +58,18 @@ def on_switch_account_right():
                 current_account_index = len(accounts_list) - 1
                 text = f"Current account: [{current_account_index + 1}] {new_display}"
                 os.system("cls")
+                better_fortnite_ascii()
                 print(Fore.LIGHTGREEN_EX + f"[+] New account added: {text}" + Fore.RESET)
                 update_popup(text)
                 cmd_interface()
             except Exception as ex:
                 os.system("cls")
+                better_fortnite_ascii()
                 print(Fore.LIGHTRED_EX + "[!] Error adding new account:" + Fore.RESET, ex)
                 cmd_interface()
         else:
             os.system("cls")
+            better_fortnite_ascii()
             print(Fore.LIGHTYELLOW_EX + "[*] Staying on the current account.")
             cmd_interface()
     else:
@@ -77,6 +80,7 @@ def on_switch_account_right():
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         os.system("cls")
+        better_fortnite_ascii()
         print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
         update_popup(text)
         cmd_interface()
@@ -85,11 +89,13 @@ def on_switch_account_left():
     global current_account_index, accounts_list
     if not accounts_list:
         os.system("cls")
+        better_fortnite_ascii()
         print(Fore.LIGHTRED_EX + "[!] No accounts saved." + Fore.RESET)
         cmd_interface()
         return
     if current_account_index == 0:
         os.system("cls")
+        better_fortnite_ascii()
         print(Fore.LIGHTRED_EX + "[!] You are already at the first account. No previous account." + Fore.RESET)
         cmd_interface()
     else:
@@ -100,6 +106,7 @@ def on_switch_account_left():
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         os.system("cls")
+        better_fortnite_ascii()
         print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
         update_popup(text)
         cmd_interface()
@@ -118,6 +125,7 @@ def on_play_fortnite():
 
 def open_fortniteDB():
     os.system("cls")
+    better_fortnite_ascii()
     print(Fore.LIGHTGREEN_EX + "[+] Opening FortniteDB.com in the browser..." + Fore.RESET)
     url = "https://fortniteDB.com"
     webbrowser.open(url)
@@ -142,6 +150,7 @@ def register_hotkeys():
 
 def close_program():
     os.system("cls")
+    better_fortnite_ascii()
     print(Fore.LIGHTYELLOW_EX +"Exiting the program" + Fore.RESET)
     time.sleep(1)
     os.system("exit")
@@ -204,7 +213,7 @@ def run_app():
     # Register all the hotkeys
     register_hotkeys()
 
-    
+
     # Display instructions in the console
     cmd_interface()
 

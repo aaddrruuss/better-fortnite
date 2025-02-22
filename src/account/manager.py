@@ -3,7 +3,6 @@ import glob
 import re
 import os
 import webbrowser
-import asyncio
 from auth.auth import get_client_credentials_token, create_device_code, poll_for_token, create_device_auth
 
 async def authenticate(filename: str) -> dict:
