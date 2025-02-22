@@ -17,7 +17,7 @@
    cd better-fortnite
    ```
 
-~~2. **Create a `.env` file** in the project root with the following information:~~ __**(NO LONGER NEEDED)**__
+2. ~~**Create a `.env` file** in the project root with the following information:~~ __**(NO LONGER NEEDED)**__
 
    ```env
    EPIC_PC_CLIENT_ID=34a02cf8f4414e29b15921876da36f9a
@@ -44,7 +44,8 @@
 
 If you prefer a quick and hassle-free setup, follow these steps:
 
-~~1. 📝 **Create the `.env` file** in the project root with the credential information.~~ __**(NO LONGER NEEDED)**__
+1. ~~📝 **Create the `.env` file** in the project root with the credential information.~~ __**(NO LONGER NEEDED)**
+
 2. 🎮 **Run the latest `.exe` file version** located in `dist/`.
 
 ⚡ **No need to install Python or dependencies!**
