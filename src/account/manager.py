@@ -12,17 +12,17 @@ async def authenticate(filename: str) -> dict:
             with open(filename, "r") as f:
                 data = json.load(f)
             if all(k in data for k in ("account_id", "deviceId", "secret")):
-                print(f"[*] Datos de {filename} cargados.")
+                print(f"[*] Data from {filename} loaded.")
                 return data
         except:
             pass
-    print(f"[*] No se encontraron datos en {filename}. Iniciando proceso de autenticación.")
+    print(f"[*] No data found in {filename}. Starting authentication process.")
     client_token = await get_client_credentials_token()
     device_code_response = await create_device_code(client_token)
     device_code = device_code_response["device_code"]
     verification_url = device_code_response["verification_uri_complete"]
     webbrowser.open(verification_url)
-    print(f"[!] Por favor, ve a este enlace para completar el login: {verification_url}")
+    print(f"[!] Please visit this link to complete the login: {verification_url}")
     token_data = await poll_for_token(device_code, device_code_response["interval"])
     account_id = token_data["account_id"]
     access_token = token_data["access_token"]
@@ -34,7 +34,7 @@ async def authenticate(filename: str) -> dict:
     }
     with open(filename, 'w') as f:
         json.dump(data, f)
-    print(f"[+] Autenticación completada y datos guardados en {filename}")
+    print(f"[+] Authentication completed and data saved in {filename}")
     return data
 
 def load_all_accounts():
@@ -51,7 +51,7 @@ def load_all_accounts():
                 if all(k in data for k in ("account_id", "deviceId", "secret")):
                     accounts.append((fname, data))
         except Exception as e:
-            print(f"[!] Error al cargar {fname}: {e}")
+            print(f"[!] Error loading {fname}: {e}")
     return accounts
 
 async def get_display_name_for_account(device_auth_data: dict) -> str:
