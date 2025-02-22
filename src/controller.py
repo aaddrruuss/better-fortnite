@@ -10,6 +10,7 @@ from account.manager import load_all_accounts, authenticate, get_display_name_fo
 from commands.refresh import command_leave_party, command_skip, command_play_fortnite
 from ui.popup import popup_loop, update_popup
 from config import display_names
+from ui.cmd_interface import cmd_interface
 
 # Global variables for managing accounts and the event loop
 accounts_list = []      # List of tuples (filename, data)
@@ -28,6 +29,7 @@ def on_switch_account_down():
     text = f"Current account: [{current_account_index + 1}] {display_name}"
     print(f"[+] {text}")
     update_popup(text)
+    cmd_interface()
 
 def on_switch_account_right():
     global current_account_index, accounts_list
@@ -50,10 +52,13 @@ def on_switch_account_right():
                 text = f"Current account: [{current_account_index + 1}] {new_display}"
                 print(f"[+] New account added: {text}")
                 update_popup(text)
+                cmd_interface()
             except Exception as ex:
                 print("[!] Error adding new account:", ex)
+                cmd_interface()
         else:
             print("[*] Staying on the current account.")
+            cmd_interface()
     else:
         current_account_index += 1
         if current_account_index < len(display_names):
@@ -63,14 +68,17 @@ def on_switch_account_right():
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
+        cmd_interface()
 
 def on_switch_account_left():
     global current_account_index, accounts_list
     if not accounts_list:
         print("[!] No accounts saved.")
+        cmd_interface()
         return
     if current_account_index == 0:
         print("[!] You are already at the first account. No previous account.")
+        cmd_interface()
     else:
         current_account_index -= 1
         if current_account_index < len(display_names):
@@ -80,6 +88,7 @@ def on_switch_account_left():
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
+        cmd_interface()
 
 def on_leave_party():
     device_auth_data = accounts_list[current_account_index][1]
@@ -94,9 +103,10 @@ def on_play_fortnite():
     asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), event_loop)
 
 def open_fortniteDB():
-    print("Opening FortniteDB.com in the browser...")
+    print("[+] Opening FortniteDB.com in the browser...")
     url = "https://fortniteDB.com"
     webbrowser.open(url)
+    cmd_interface()
 
 # ================================================================
 # Auxiliary functions for initializing the event loop, hotkeys, and loading accounts
@@ -144,6 +154,10 @@ def load_accounts_and_update_popup():
         print(f"[*] Current account: {display_names[current_account_index]}")
         update_popup(f"Current account: [{current_account_index + 1}] {display_names[current_account_index]}")
 
+
+
+
+
 # ================================================================
 # Main function that starts the application
 # ================================================================
@@ -171,17 +185,7 @@ def run_app():
     register_hotkeys()
 
     # Display instructions in the console
-    print("========================================")
-    print("Instructions and Hotkeys:")
-    print("  - AltGr+L: Executes 'Leave Party' with the current account")
-    print("  - AltGr+S: Executes 'Skip' with the current account")
-    print("  - AltGr+Up: Launches Fortnite with the current account")
-    print("  - AltGr+Right: Switches to the next account (or prompts to add a new one)")
-    print("  - AltGr+Left: Switches to the previous account")
-    print("  - AltGr+Down: Displays the current account in the console")
-    print("  - AltGr+Q: Opens FortniteDB.com in the browser")
-    print("========================================")
-    print("Press ALTGR+ESC to exit.")
+    cmd_interface()
 
     # Wait until the exit hotkey is activated
     keyboard.wait('f+g+h+t+y+d+s+q+d+u+i+p')
@@ -189,6 +193,8 @@ def run_app():
     event_loop.call_soon_threadsafe(event_loop.stop)
     import ui.popup
     ui.popup.popup_root.destroy()
+
+
 
 if __name__ == "__main__":
     run_app()
