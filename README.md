@@ -67,6 +67,7 @@ Better Fortnite includes several keyboard shortcuts to improve efficiency:
 - 🔍 **AltGr + Down Arrow**: Check current account.
 - ⬅️ **AltGr + Left Arrow**: Switch to the previous account.
 - ➡️ **AltGr + Right Arrow**: Switch account or add a new one if there isn't one already.
+- ➡️ **AltGr + Q**: Opens 'FortniteDB' website on your browser.
 
 These shortcuts allow for a faster and more seamless experience when managing multiple accounts.
 
