@@ -7,14 +7,14 @@ def create_popup():
     root = tk.Tk()
     root.overrideredirect(True)   # Sin bordes ni barra de título
     root.attributes("-topmost", True)
-    root.attributes("-alpha", 0.85)
-    width = 300
-    height = 50
+    root.attributes("-alpha", 0.8)
+    width = 350
+    height = 30
     screen_width = root.winfo_screenwidth()
     x = screen_width - width - 10
     y = 10
     root.geometry(f"{width}x{height}+{x}+{y}")
-    label = tk.Label(root, text="Cuenta actual: ", font=("Arial", 12), bg="black", fg="white")
+    label = tk.Label(root, text="Loading...", font=("Courier New", 12), bg="white", fg="black")
     label.pack(expand=True, fill="both")
     return root, label
 
