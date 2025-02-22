@@ -6,11 +6,16 @@ import keyboard
 import subprocess
 import os
 
+
+from colorama import init, Fore, Back, Style
+init()
+
+
 from account.manager import load_all_accounts, authenticate, get_display_name_for_account
 from commands.refresh import command_leave_party, command_skip, command_play_fortnite
 from ui.popup import popup_loop, update_popup
 from config import display_names
-from ui.cmd_interface import cmd_interface
+from ui.cmd_interface import cmd_interface, better_fortnite_ascii
 
 # Global variables for managing accounts and the event loop
 accounts_list = []      # List of tuples (filename, data)
@@ -28,14 +33,15 @@ def on_switch_account_down():
         display_name = "Unknown"
     text = f"Current account: [{current_account_index + 1}] {display_name}"
     os.system("cls")
-    print(f"[+] {text}")
+    print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
     update_popup(text)
     cmd_interface()
 
 def on_switch_account_right():
     global current_account_index, accounts_list
     if not accounts_list:
-        print("[!] No accounts saved.")
+        print(Fore.LIGHTRED_EX + "[!] No accounts saved." + Fore.RESET)
+        cmd_interface()
         return
     if current_account_index == len(accounts_list) - 1:
         respuesta = input("No accounts found. Would you like to add a new account? (y/n): ").strip().lower()
@@ -52,16 +58,16 @@ def on_switch_account_right():
                 current_account_index = len(accounts_list) - 1
                 text = f"Current account: [{current_account_index + 1}] {new_display}"
                 os.system("cls")
-                print(f"[+] New account added: {text}")
+                print(Fore.LIGHTGREEN_EX + f"[+] New account added: {text}" + Fore.RESET)
                 update_popup(text)
                 cmd_interface()
             except Exception as ex:
                 os.system("cls")
-                print("[!] Error adding new account:", ex)
+                print(Fore.LIGHTRED_EX + "[!] Error adding new account:" + Fore.RESET, ex)
                 cmd_interface()
         else:
             os.system("cls")
-            print("[*] Staying on the current account.")
+            print(Fore.LIGHTYELLOW_EX + "[*] Staying on the current account.")
             cmd_interface()
     else:
         current_account_index += 1
@@ -71,7 +77,7 @@ def on_switch_account_right():
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         os.system("cls")
-        print(f"[+] {text}")
+        print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
         update_popup(text)
         cmd_interface()
 
@@ -79,12 +85,12 @@ def on_switch_account_left():
     global current_account_index, accounts_list
     if not accounts_list:
         os.system("cls")
-        print("[!] No accounts saved.")
+        print(Fore.LIGHTRED_EX + "[!] No accounts saved." + Fore.RESET)
         cmd_interface()
         return
     if current_account_index == 0:
         os.system("cls")
-        print("[!] You are already at the first account. No previous account.")
+        print(Fore.LIGHTRED_EX + "[!] You are already at the first account. No previous account." + Fore.RESET)
         cmd_interface()
     else:
         current_account_index -= 1
@@ -94,7 +100,7 @@ def on_switch_account_left():
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
         os.system("cls")
-        print(f"[+] {text}")
+        print(Fore.LIGHTGREEN_EX + f"[+] {text}" + Fore.RESET)
         update_popup(text)
         cmd_interface()
 
@@ -112,7 +118,7 @@ def on_play_fortnite():
 
 def open_fortniteDB():
     os.system("cls")
-    print("[+] Opening FortniteDB.com in the browser...")
+    print(Fore.LIGHTGREEN_EX + "[+] Opening FortniteDB.com in the browser..." + Fore.RESET)
     url = "https://fortniteDB.com"
     webbrowser.open(url)
     cmd_interface()
@@ -136,7 +142,7 @@ def register_hotkeys():
 
 def close_program():
     os.system("cls")
-    print("Exiting the program")
+    print(Fore.LIGHTYELLOW_EX +"Exiting the program" + Fore.RESET)
     time.sleep(1)
     os.system("exit")
 
@@ -154,14 +160,16 @@ def load_accounts_and_update_popup():
             display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
             display_names.append(display_name)
         else:
-            print("No account added. Exiting...")
+            print(Fore.LIGHTYELLOW_EX + "[*] No account added. Exiting..." + Fore.RESET)
             exit(0)
     else:
         for fname, data in accounts_list:
             display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
             display_names.append(display_name)
-        print(f"[*] Found {len(accounts_list)} account(s).")
-        print(f"[*] Current account: {display_names[current_account_index]}")
+        os.system("cls")
+        better_fortnite_ascii()
+        print(Fore.LIGHTYELLOW_EX + "[*] Found " + Fore.RESET + Style.BRIGHT  + f"{len(accounts_list)}" + Style.RESET_ALL + Fore.LIGHTYELLOW_EX + " account(s)." + Fore.RESET)
+        print(Fore.LIGHTGREEN_EX + f"[+] Current account: [{current_account_index}] {display_names[current_account_index]}" + Fore.RESET)
         update_popup(f"Current account: [{current_account_index + 1}] {display_names[current_account_index]}")
 
 
@@ -188,12 +196,15 @@ def run_app():
     while ui.popup.popup_root is None:
         time.sleep(0.1)
 
+    print(Fore.LIGHTYELLOW_EX + "[*] Application loading, please wait..." + Fore.RESET)
+    
     # Load accounts and update the popup with the current account
     load_accounts_and_update_popup()
 
     # Register all the hotkeys
     register_hotkeys()
 
+    
     # Display instructions in the console
     cmd_interface()
 
