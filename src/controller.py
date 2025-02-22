@@ -11,13 +11,13 @@ from commands.refresh import command_leave_party, command_skip, command_play_for
 from ui.popup import popup_loop, update_popup
 from config import display_names
 
-# Variables globales para la gestión de cuentas y el event loop
-accounts_list = []      # Lista de tuplas (filename, data)
+# Global variables for managing accounts and the event loop
+accounts_list = []      # List of tuples (filename, data)
 current_account_index = 0
-event_loop = None       # Se asignará el loop en run_app()
+event_loop = None       # Will be assigned in run_app()
 
 # ================================================================
-# Funciones de cambio de cuenta y acciones asociadas
+# Account switching functions and associated actions
 # ================================================================
 def on_switch_account_down():
     global current_account_index
@@ -25,59 +25,59 @@ def on_switch_account_down():
         display_name = display_names[current_account_index]
     else:
         display_name = "Unknown"
-    text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
+    text = f"Current account: [{current_account_index + 1}] {display_name}"
     print(f"[+] {text}")
     update_popup(text)
 
 def on_switch_account_right():
     global current_account_index, accounts_list
     if not accounts_list:
-        print("[!] No hay cuentas guardadas.")
+        print("[!] No accounts saved.")
         return
     if current_account_index == len(accounts_list) - 1:
-        respuesta = input("¿Desea agregar una nueva cuenta? (y/n): ").strip().lower()
+        respuesta = input("No accounts found. Would you like to add a new account? (y/n): ").strip().lower()
         if respuesta == 'y':
             new_filename = f"device_auths{len(accounts_list) + 1}.json"
             try:
-                # Se autentica y agrega la nueva cuenta
+                # Authenticate and add the new account
                 data = asyncio.run_coroutine_threadsafe(authenticate(new_filename), event_loop).result()
                 accounts_list.append((new_filename, data))
-                # Se obtiene el display name de la nueva cuenta y se añade al cache
+                # Get the display name for the new account and add it to the cache
                 new_display = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
                 display_names.append(new_display)
-                # Se actualiza el índice a la última posición (la nueva cuenta)
+                # Update the index to the last position (the new account)
                 current_account_index = len(accounts_list) - 1
-                text = f"Cuenta actual: [{current_account_index + 1}] {new_display}"
-                print(f"[+] Nueva cuenta agregada: {text}")
+                text = f"Current account: [{current_account_index + 1}] {new_display}"
+                print(f"[+] New account added: {text}")
                 update_popup(text)
             except Exception as ex:
-                print("[!] Error al agregar nueva cuenta:", ex)
+                print("[!] Error adding new account:", ex)
         else:
-            print("[*] Permaneciendo en la cuenta actual.")
+            print("[*] Staying on the current account.")
     else:
         current_account_index += 1
         if current_account_index < len(display_names):
             display_name = display_names[current_account_index]
         else:
             display_name = "Unknown"
-        text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
+        text = f"Current account: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
 
 def on_switch_account_left():
     global current_account_index, accounts_list
     if not accounts_list:
-        print("[!] No hay cuentas guardadas.")
+        print("[!] No accounts saved.")
         return
     if current_account_index == 0:
-        print("[!] Ya estás en la primera cuenta. No hay cuenta anterior.")
+        print("[!] You are already at the first account. No previous account.")
     else:
         current_account_index -= 1
         if current_account_index < len(display_names):
             display_name = display_names[current_account_index]
         else:
             display_name = "Unknown"
-        text = f"Cuenta actual: [{current_account_index + 1}] {display_name}"
+        text = f"Current account: [{current_account_index + 1}] {display_name}"
         print(f"[+] {text}")
         update_popup(text)
 
@@ -94,12 +94,12 @@ def on_play_fortnite():
     asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), event_loop)
 
 def open_fortniteDB():
-    print("Abriendo FortniteDB.com en el navegador...")
+    print("Opening FortniteDB.com in the browser...")
     url = "https://fortniteDB.com"
     webbrowser.open(url)
 
 # ================================================================
-# Funciones auxiliares para inicializar el event loop, hotkeys y cargar cuentas
+# Auxiliary functions for initializing the event loop, hotkeys, and loading accounts
 # ================================================================
 def start_event_loop(loop: asyncio.AbstractEventLoop):
     asyncio.set_event_loop(loop)
@@ -116,16 +116,16 @@ def register_hotkeys():
     keyboard.add_hotkey('alt gr+q', open_fortniteDB)
 
 def close_program():
-    print("Saliendo del programa")
+    print("Exiting the program")
     time.sleep(1)
     os.system("exit")
 
 def load_accounts_and_update_popup():
     global accounts_list, current_account_index
-    # Cargar cuentas existentes
+    # Load existing accounts
     accounts_list = load_all_accounts()
     if not accounts_list:
-        respuesta = input("No se encontraron cuentas guardadas. ¿Desea agregar una nueva cuenta? (y/n): ").strip().lower()
+        respuesta = input("No accounts found. Would you like to add a new account? (y/n): ").strip().lower()
         if respuesta == 'y':
             new_filename = "device_auths1.json"
             data = asyncio.run_coroutine_threadsafe(authenticate(new_filename), event_loop).result()
@@ -134,57 +134,58 @@ def load_accounts_and_update_popup():
             display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
             display_names.append(display_name)
         else:
-            print("No se agregó ninguna cuenta. Saliendo...")
+            print("No account added. Exiting...")
             exit(0)
     else:
         for fname, data in accounts_list:
             display_name = asyncio.run_coroutine_threadsafe(get_display_name_for_account(data), event_loop).result()
             display_names.append(display_name)
-        print(f"[*] Se encontraron {len(accounts_list)} cuenta(s).")
-        print(f"[*] Cuenta actual: {display_names[current_account_index]}")
-        update_popup(f"Cuenta actual: [{current_account_index + 1}] {display_names[current_account_index]}")
+        print(f"[*] Found {len(accounts_list)} account(s).")
+        print(f"[*] Current account: {display_names[current_account_index]}")
+        update_popup(f"Current account: [{current_account_index + 1}] {display_names[current_account_index]}")
 
 # ================================================================
-# Función principal que inicia la aplicación
+# Main function that starts the application
 # ================================================================
 def run_app():
     global event_loop
 
-    # Inicializar y arrancar el event loop en un hilo aparte
+    # Initialize and start the event loop in a separate thread
     event_loop = asyncio.new_event_loop()
     loop_thread = threading.Thread(target=start_event_loop, args=(event_loop,), daemon=True)
     loop_thread.start()
 
-    # Iniciar la ventana popup en un hilo aparte
+    # Start the popup window in a separate thread
     popup_thread = threading.Thread(target=popup_loop, daemon=True)
     popup_thread.start()
 
-    # Esperar a que la ventana popup se inicialice
+    # Wait for the popup window to initialize
     import ui.popup
     while ui.popup.popup_root is None:
         time.sleep(0.1)
 
-    # Cargar cuentas y actualizar el popup con la cuenta actual
+    # Load accounts and update the popup with the current account
     load_accounts_and_update_popup()
 
-    # Registrar todas las hotkeys
+    # Register all the hotkeys
     register_hotkeys()
 
-    # Mostrar instrucciones en consola
+    # Display instructions in the console
     print("========================================")
-    print("Instrucciones y Hotkeys:")
-    print("  - AltGr+L: Ejecuta 'Leave Party' con la cuenta actual")
-    print("  - AltGr+S: Ejecuta 'Skip' con la cuenta actual")
-    print("  - AltGr+Up: Lanza Fortnite con la cuenta actual")
-    print("  - AltGr+Right: Cambia a la siguiente cuenta (o pregunta para agregar una nueva)")
-    print("  - AltGr+Left: Cambia a la cuenta anterior")
-    print("  - AltGr+Down: Muestra en consola la cuenta actual")
+    print("Instructions and Hotkeys:")
+    print("  - AltGr+L: Executes 'Leave Party' with the current account")
+    print("  - AltGr+S: Executes 'Skip' with the current account")
+    print("  - AltGr+Up: Launches Fortnite with the current account")
+    print("  - AltGr+Right: Switches to the next account (or prompts to add a new one)")
+    print("  - AltGr+Left: Switches to the previous account")
+    print("  - AltGr+Down: Displays the current account in the console")
+    print("  - AltGr+Q: Opens FortniteDB.com in the browser")
     print("========================================")
-    print("Presione ALTGR+ESC para salir.")
+    print("Press ALTGR+ESC to exit.")
 
-    # Esperar hasta que se active la hotkey de salida
+    # Wait until the exit hotkey is activated
     keyboard.wait('f+g+h+t+y+d+s+q+d+u+i+p')
-    print("Saliendo...")
+    print("Exiting...")
     event_loop.call_soon_threadsafe(event_loop.stop)
     import ui.popup
     ui.popup.popup_root.destroy()
