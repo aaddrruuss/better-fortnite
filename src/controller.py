@@ -1,6 +1,7 @@
 import asyncio
 import threading
 import time
+import webbrowser
 import keyboard
 import subprocess
 import os
@@ -92,6 +93,9 @@ def on_play_fortnite():
     device_auth_data = accounts_list[current_account_index][1]
     asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), event_loop)
 
+def open_fortniteDB():
+    webbrowser.open("fortniteDB.com")
+
 # ================================================================
 # Funciones auxiliares para inicializar el event loop, hotkeys y cargar cuentas
 # ================================================================
@@ -107,6 +111,7 @@ def register_hotkeys():
     keyboard.add_hotkey('alt gr+left', on_switch_account_left)
     keyboard.add_hotkey('alt gr+down', on_switch_account_down)
     keyboard.add_hotkey('alt gr+esc', close_program)
+    keyboard.add_hotkey('alt gr+q', open_fortniteDB)
 
 def close_program():
     print("Saliendo del programa")
