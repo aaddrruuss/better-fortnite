@@ -27,6 +27,7 @@ def on_switch_account_down():
     else:
         display_name = "Unknown"
     text = f"Current account: [{current_account_index + 1}] {display_name}"
+    os.system("cls")
     print(f"[+] {text}")
     update_popup(text)
     cmd_interface()
@@ -50,13 +51,16 @@ def on_switch_account_right():
                 # Update the index to the last position (the new account)
                 current_account_index = len(accounts_list) - 1
                 text = f"Current account: [{current_account_index + 1}] {new_display}"
+                os.system("cls")
                 print(f"[+] New account added: {text}")
                 update_popup(text)
                 cmd_interface()
             except Exception as ex:
+                os.system("cls")
                 print("[!] Error adding new account:", ex)
                 cmd_interface()
         else:
+            os.system("cls")
             print("[*] Staying on the current account.")
             cmd_interface()
     else:
@@ -66,6 +70,7 @@ def on_switch_account_right():
         else:
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
+        os.system("cls")
         print(f"[+] {text}")
         update_popup(text)
         cmd_interface()
@@ -73,10 +78,12 @@ def on_switch_account_right():
 def on_switch_account_left():
     global current_account_index, accounts_list
     if not accounts_list:
+        os.system("cls")
         print("[!] No accounts saved.")
         cmd_interface()
         return
     if current_account_index == 0:
+        os.system("cls")
         print("[!] You are already at the first account. No previous account.")
         cmd_interface()
     else:
@@ -86,6 +93,7 @@ def on_switch_account_left():
         else:
             display_name = "Unknown"
         text = f"Current account: [{current_account_index + 1}] {display_name}"
+        os.system("cls")
         print(f"[+] {text}")
         update_popup(text)
         cmd_interface()
@@ -103,6 +111,7 @@ def on_play_fortnite():
     asyncio.run_coroutine_threadsafe(command_play_fortnite(device_auth_data), event_loop)
 
 def open_fortniteDB():
+    os.system("cls")
     print("[+] Opening FortniteDB.com in the browser...")
     url = "https://fortniteDB.com"
     webbrowser.open(url)
@@ -126,6 +135,7 @@ def register_hotkeys():
     keyboard.add_hotkey('alt gr+q', open_fortniteDB)
 
 def close_program():
+    os.system("cls")
     print("Exiting the program")
     time.sleep(1)
     os.system("exit")

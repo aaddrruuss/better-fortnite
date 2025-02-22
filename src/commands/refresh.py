@@ -22,9 +22,11 @@ async def command_leave_party(device_auth_data: dict):
         account_id = device_auth_data["account_id"]
         party_id = await getPartyId(access_token, account_id)
         await leaveParty(access_token, party_id, account_id)
+        os.system("cls")
         print("[+] Has abandonado la party correctamente.")
         cmd_interface()
     except Exception as e:
+        os.system("cls")
         print("[!] Error en leave party:", str(e))
         cmd_interface()
 
@@ -39,9 +41,11 @@ async def command_skip(device_auth_data: dict):
         await claimMissionAlertRewards(access_token, account_id)
         for _ in range(6):
             await claimQuestRewards(access_token, account_id)
+        os.system("cls")
         print("[+] Comando skip ejecutado correctamente.")
         cmd_interface()
     except Exception as e:
+        os.system("cls")
         print("[!] Error en skip:", str(e))
         cmd_interface()
 
@@ -59,9 +63,11 @@ async def command_play_fortnite(device_auth_data: dict):
         access_token = await refresh_access_token(device_auth_data)
         account_id = device_auth_data["account_id"]
         launch_link = await play_fortnite(access_token, account_id)
-        print("[+] Lanzando Fortnite...")
+        os.system("cls")
+        print("[+] Launching Fortnite...")
         os.system(launch_link)
         cmd_interface()
     except Exception as e:
-        print("[!] Error en play fortnite:", str(e))
+        os.system("cls")
+        print("[!] Error on play fortnite:", str(e))
         cmd_interface()
