@@ -24,5 +24,6 @@ def cmd_interface():
     print("  - AltGr+Left\t->\tSwitches to the previous account")
     print("  - AltGr+Down\t->\tDisplays the current account in the console")
     print("  - AltGr+Q\t->\tOpens FortniteDB.com in the browser")
+    print("  - AltGr+P\t->\tWhile holding, you will activate fast drop script")
     print("==================================================================================")
     print("Press ALTGR+ESC to exit." + Fore.RESET)
