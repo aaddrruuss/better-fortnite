@@ -75,10 +75,12 @@ def on_switch_account_right():
             new_filename = f"device_auths{len(accounts_list) + 1}.json"
             try:
                 # Authenticate and add the new account
+                print_status("Authenticating...", "info")
                 data = asyncio.run_coroutine_threadsafe(authenticate(new_filename), event_loop).result()
                 accounts_list.append((new_filename, data))
                 
                 # Get the display name for the new account and add it to the cache
+                print_status("Getting display name...", "info")
                 new_display = asyncio.run_coroutine_threadsafe(
                     get_display_name_for_account(data), event_loop
                 ).result()
@@ -106,8 +108,12 @@ def on_switch_account_right():
         current_account_index += 1
         idx, display_name = get_current_account_info()
         
+        # Mostramos solo un mensaje de cambio, sin animaciones que parpadeen
         clear_screen()
-        show_loading(f"Switching to account [{idx}] {display_name}", 0.8, 2)
+        better_fortnite_ascii()
+        print_status(f"Switching to account [{idx}] {display_name}...", "info")
+        time.sleep(0.5)  # Una pequeña pausa para dar feedback visual
+        
         clear_screen()
         better_fortnite_ascii()
         
@@ -137,8 +143,12 @@ def on_switch_account_left():
         current_account_index -= 1
         idx, display_name = get_current_account_info()
         
+        # Mostramos solo un mensaje de cambio, sin animaciones que parpadeen
         clear_screen()
-        show_loading(f"Switching to account [{idx}] {display_name}", 0.8, 2)
+        better_fortnite_ascii()
+        print_status(f"Switching to account [{idx}] {display_name}...", "info")
+        time.sleep(0.5)  # Una pequeña pausa para dar feedback visual
+        
         clear_screen()
         better_fortnite_ascii()
         
