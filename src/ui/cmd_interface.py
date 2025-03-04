@@ -78,7 +78,7 @@ def cmd_interface(current_account=None, accounts_count=0):
     ]
     
     # Define column widths for a consistent look
-    col_widths = [12, 20, 40]
+    col_widths = [13, 20, 40]
     
     # Print header
     print(Fore.CYAN + "┌" + "─" * col_widths[0] + "┬" + "─" * col_widths[1] + "┬" + "─" * col_widths[2] + "┐" + Fore.RESET)
@@ -100,4 +100,4 @@ def cmd_interface(current_account=None, accounts_count=0):
     
     # Footer
     print("\n" + Fore.MAGENTA + "═" * 90 + Fore.RESET)
-    print(Fore.LIGHTBLUE_EX + "Better Fortnite" + Fore.RESET + " - Made with " + Fore.RED + "♥" + Fore.RESET + " by aaddrruuss")
+    print(Fore.LIGHTBLUE_EX + "Better Fortnite" + Fore.RESET + " - Made with " + Fore.RED + "♥" + Fore.RESET + " by @adrusss")
