@@ -26,6 +26,8 @@ display_names_cache = {}  # Cache for display names to reduce API calls
 # Fast drop variables
 fast_drop_active = False
 fast_drop_thread = None
+fast_drop_monitor_thread = None
+keep_monitoring_keys = True  # Para controlar el ciclo del monitor de teclas
 
 
 # ================================================================
@@ -231,26 +233,36 @@ def fast_drop_loop():
         # Very small sleep to prevent CPU overload
         time.sleep(0.01)
 
-def on_fast_drop_press():
-    """Start fast drop when key combo is pressed"""
+def monitor_fast_drop_keys():
+    """Monitor if both AltGr and P keys are pressed"""
     global fast_drop_active, fast_drop_thread
     
-    if fast_drop_active:
-        return  # Already active
+    while keep_monitoring_keys:
+        # Verificar si ambas teclas están presionadas
+        if keyboard.is_pressed('alt gr') and keyboard.is_pressed('p'):
+            # Si no está activo, activar Fast Drop
+            if not fast_drop_active:
+                fast_drop_active = True
+                update_popup("Fast Drop ACTIVE", "busy")
+                
+                fast_drop_thread = threading.Thread(target=fast_drop_loop, daemon=True)
+                fast_drop_thread.start()
+        else:
+            # Si alguna tecla se suelta y Fast Drop está activo, desactivarlo
+            if fast_drop_active:
+                fast_drop_active = False
+                update_popup("Fast Drop DEACTIVATED", "success")
+                
+                # Después de un breve retraso, mostrar la cuenta actual de nuevo
+                def show_account_after_delay():
+                    time.sleep(1.5)
+                    idx, name = get_current_account_info()
+                    update_popup(f"Current account: [{idx}] {name}")
+                    
+                threading.Thread(target=show_account_after_delay, daemon=True).start()
         
-    fast_drop_active = True
-    update_popup("Fast Drop ACTIVE")
-    
-    fast_drop_thread = threading.Thread(target=fast_drop_loop, daemon=True)
-    fast_drop_thread.start()
-
-def on_fast_drop_release():
-    """Stop fast drop when key is released"""
-    global fast_drop_active
-    
-    fast_drop_active = False
-    idx, name = get_current_account_info()
-    update_popup(f"Current account: [{idx}] {name}")
+        # Breve pausa para no consumir CPU excesivamente
+        time.sleep(0.05)
 
 
 # ================================================================
@@ -263,6 +275,8 @@ def start_event_loop(loop: asyncio.AbstractEventLoop):
 
 def register_hotkeys():
     """Register all hotkeys with more descriptive comments"""
+    global fast_drop_monitor_thread
+    
     # Action commands
     keyboard.add_hotkey('alt gr+l', on_leave_party)       # Leave party
     keyboard.add_hotkey('alt gr+s', on_skip)              # Skip mission animation
@@ -277,12 +291,18 @@ def register_hotkeys():
     keyboard.add_hotkey('alt gr+esc', close_program)      # Exit program
     keyboard.add_hotkey('alt gr+q', open_fortniteDB)      # Open FortniteDB website
 
-    # Fast drop key handling (with Alt Gr + P)
-    keyboard.on_press_key("p", lambda e: on_fast_drop_press() if keyboard.is_pressed('alt gr') else None)
-    keyboard.on_release_key("p", lambda e: on_fast_drop_release())
+    # Para Fast Drop usamos un enfoque diferente basado en monitoreo continuo
+    # en lugar de hotkeys tradicionales
+    fast_drop_monitor_thread = threading.Thread(target=monitor_fast_drop_keys, daemon=True)
+    fast_drop_monitor_thread.start()
 
 def close_program():
     """Exit the application gracefully"""
+    global keep_monitoring_keys
+    
+    # Detener el hilo de monitoreo de teclas
+    keep_monitoring_keys = False
+    
     clear_screen()
     better_fortnite_ascii()
     print_status("Exiting Better Fortnite...", "info")
