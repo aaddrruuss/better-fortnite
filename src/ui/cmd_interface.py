@@ -2,6 +2,7 @@ from colorama import init, Fore, Back, Style
 import os
 import platform
 import time
+import sys
 
 init()
 
@@ -32,14 +33,26 @@ def print_status(message, status_type="info"):
     print(f"{prefix} {message}")
 
 def show_loading(message="Loading", duration=1.5, steps=3):
-    """Shows a loading animation in the console"""
+    """Shows a loading animation without clearing the screen (eliminates flicker)"""
+    # Imprime un mensaje inicial para dejar espacio para la animación
+    print("")
+    
+    # Calculamos el tiempo para cada estado de la animación
+    step_duration = duration / steps / 4
+    
+    # Realizamos la animación sin limpiar la pantalla
     for _ in range(steps):
         for i in range(4):
-            clear_screen()
-            better_fortnite_ascii()
-            dots = "." * i
-            print(f"{Fore.LIGHTYELLOW_EX}{message}{dots}{' ' * (3-i)}{Fore.RESET}")
-            time.sleep(duration/steps/4)
+            # Volvemos al inicio de la línea con \r
+            dots = "." * i + " " * (3-i)
+            sys.stdout.write(f"\r{Fore.LIGHTYELLOW_EX}{message}{dots}{Fore.RESET}")
+            sys.stdout.flush()
+            time.sleep(step_duration)
+    
+    # Limpia la línea de carga al finalizar
+    sys.stdout.write("\r" + " " * (len(message) + 5) + "\r")
+    sys.stdout.flush()
+    print("")
 
 def cmd_interface(current_account=None, accounts_count=0):
     """Display an improved command interface with account info"""
