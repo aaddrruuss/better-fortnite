@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import platform
+import threading
+import time
 
 popup_root = None
 popup_label = None
@@ -76,13 +78,39 @@ def popup_loop():
     popup_root, popup_label, popup_status_indicator = create_popup()
     popup_root.mainloop()
 
+def fade_text_effect(new_text, label, steps=5, delay=0.02):
+    """Crea un efecto de transición suave para el texto"""
+    current_fg = label.cget("fg")
+    
+    # Primero desvanecemos el texto actual
+    for i in range(steps):
+        alpha = 1.0 - (i / steps)
+        # Calculamos el color con transparencia
+        label.config(fg=f"#{int(int(current_fg[1:3], 16) * alpha):02x}{int(int(current_fg[3:5], 16) * alpha):02x}{int(int(current_fg[5:7], 16) * alpha):02x}")
+        label.update()
+        time.sleep(delay)
+    
+    # Establecemos el nuevo texto
+    label.config(text=new_text)
+    
+    # Hacemos aparecer el nuevo texto
+    for i in range(steps):
+        alpha = i / steps
+        # Calculamos el color con transparencia aumentando
+        label.config(fg=f"#{int(int(current_fg[1:3], 16) * alpha):02x}{int(int(current_fg[3:5], 16) * alpha):02x}{int(int(current_fg[5:7], 16) * alpha):02x}")
+        label.update()
+        time.sleep(delay)
+    
+    # Restauramos el color original
+    label.config(fg=current_fg)
+
 def update_popup(text: str, status="online"):
-    """Update popup text and status indicator color"""
+    """Update popup text and status indicator color with smooth transition"""
     global popup_root, popup_label, popup_status_indicator
     
     if popup_root is not None:
-        # Update text
-        popup_root.after(0, lambda: popup_label.config(text=text))
+        # Actualizamos el texto con una transición suave en un hilo separado
+        threading.Thread(target=lambda: popup_root.after(0, lambda: fade_text_effect(text, popup_label)), daemon=True).start()
         
         # Update status indicator color
         color = "#2ECC71"  # Green (default/online)
