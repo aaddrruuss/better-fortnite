@@ -1,12 +1,18 @@
 # Better Fortnite 🎮🔥
 
-**Better Fortnite** is a tool designed to facilitate and speed up switching between multiple Fortnite accounts, providing a more efficient experience for players managing multiple accounts.
+A simple Python application that initializes a controller-based program. The entry point calls a run_app() function to start the application logic.
 
 ## ⭐ Features
 
 - 🚀 **Quick Account Switching**: Allows you to switch between different Fortnite accounts without manually logging in and out each time.
 - 🎨 **Intuitive Interface**: Simple and easy-to-use design that enhances user experience.
 - 🔒 **Secure Credential Management**: Stores account credentials securely to ensure user privacy and security.
+- Simple interface with a clear entry point.
+- Modular design separating the main script and controller logic.
+- Easy to run with minimal setup.
+
+## 🛠️ Prerequisites
+- Python 3.6 or higher
 
 ## 🛠️ Installation
 
@@ -17,13 +23,14 @@
    cd better-fortnite
    ```
 
-2. ~~**Create a `.env` file** in the project root with the following information:~~ __**(NO LONGER NEEDED)**__
+2. (Optional) Create and activate a virtual environment:
 
-   ```env
-   EPIC_PC_CLIENT_ID=34a02cf8f4414e29b15921876da36f9a
-   EPIC_PC_CLIENT_SECRET=daafbccc737745039dffe53d94fc76cf
-   EPIC_CLIENT_ID_SWITCH=98f7e42c2e3a4f86a74eb43fbb41ed39
-   EPIC_CLIENT_SECRET_SWITCH=0a2449a2-001a-451e-afec-3e812901c4d7
+   ```bash
+   python -m venv venv
+   # For Windows:
+   venv\Scripts\activate
+   # For Unix-based systems:
+   source venv/bin/activate
    ```
 
 3. **Install dependencies**:
@@ -53,6 +60,8 @@ If you prefer a quick and hassle-free setup, follow these steps:
 This is the easiest and fastest way to start using the application.
 
 ## 🎯 Usage
+
+Upon running, the application will delegate control to the controller module (via run_app()). Follow any on-screen instructions or prompts within the app.
 
 1. 🆕 **Add accounts**: When launching the application for the first time, you will be prompted to enter your Fortnite account credentials.
 2. 🔄 **Switch accounts**: Select the account you want to switch to, and the application will automatically handle the logout and login process in Fortnite.
