@@ -7,98 +7,119 @@ import sys
 init()
 
 def clear_screen():
+    """Clears the console screen in a cross-platform way"""
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
 def better_fortnite_ascii():
+    """Display the Better Fortnite ASCII art title"""
     print(Fore.CYAN + """
- ██████╗ ███████╗████████╗████████╗███████╗██████╗     ███████╗ ██████╗ ██████╗ ████████╗███╗   ██╗██╗████████╗███████╗
- ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗    ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝████╗  ██║██║╚══██╔══╝██╔════╝
- ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝    █████╗  ██║   ██║██████╔╝   ██║   ██╔██╗ ██║██║   ██║   █████╗  
- ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗    ██╔══╝  ██║   ██║██╔══██╗   ██║   ██║╚██╗██║██║   ██║   ██╔══╝  
- ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║    ██║     ╚██████╔╝██║  ██║   ██║   ██║ ╚████║██║   ██║   ███████╗
- ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝    ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝╚═╝   ╚═╝   ╚══════╝
-""" + Fore.RESET)
-    print(Fore.YELLOW + "⭐ " + Fore.LIGHTBLUE_EX + "Version 1.1" + Fore.YELLOW + " ⭐" + Fore.RESET)
-    print(Fore.MAGENTA + "═" * 90 + Fore.RESET)
+╔══════════════════════════════════════════════════════════════════════╗
+║  ██████╗ ███████╗████████╗████████╗███████╗██████╗                   ║
+║  ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗                  ║
+║  ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝                  ║
+║  ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗                  ║
+║  ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║                  ║
+║  ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝                  ║
+║  ███████╗ ██████╗ ██████╗ ████████╗███╗   ██╗██╗████████╗███████╗    ║
+║  ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝████╗  ██║██║╚══██╔══╝██╔════╝    ║
+║  █████╗  ██║   ██║██████╔╝   ██║   ██╔██╗ ██║██║   ██║   █████╗      ║
+║  ██╔══╝  ██║   ██║██╔══██╗   ██║   ██║╚██╗██║██║   ██║   ██╔══╝      ║
+║  ██║     ╚██████╔╝██║  ██║   ██║   ██║ ╚████║██║   ██║   ███████╗    ║
+║  ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝╚═╝   ╚═╝   ╚══════╝    ║
+╚══════════════════════════════════════════════════════════════════════╝""" + Style.RESET_ALL)
+    print()  # Add a blank line for spacing
 
 def print_status(message, status_type="info"):
     """Prints a formatted status message with appropriate colors"""
-    prefix_map = {
-        "info": (Fore.LIGHTYELLOW_EX + "[*]" + Fore.RESET),
-        "success": (Fore.LIGHTGREEN_EX + "[+]" + Fore.RESET),
-        "error": (Fore.LIGHTRED_EX + "[!]" + Fore.RESET),
-        "warning": (Fore.LIGHTYELLOW_EX + "[!]" + Fore.RESET)
-    }
-    prefix = prefix_map.get(status_type, prefix_map["info"])
-    print(f"{prefix} {message}")
+    prefix = ""
+    if status_type == "success":
+        prefix = Fore.LIGHTGREEN_EX + "[✓] " + Style.RESET_ALL
+    elif status_type == "error":
+        prefix = Fore.LIGHTRED_EX + "[✗] " + Style.RESET_ALL
+    elif status_type == "warning":
+        prefix = Fore.LIGHTYELLOW_EX + "[!] " + Style.RESET_ALL
+    elif status_type == "info":
+        prefix = Fore.LIGHTCYAN_EX + "[i] " + Style.RESET_ALL
+    elif status_type == "busy":
+        prefix = Fore.LIGHTMAGENTA_EX + "[⟳] " + Style.RESET_ALL
+        
+    print(f"{prefix}{message}")
 
 def show_loading(message="Loading", duration=1.5, steps=3):
     """Shows a loading animation without clearing the screen (eliminates flicker)"""
-    # Imprime un mensaje inicial para dejar espacio para la animación
-    print("")
-    
-    # Calculamos el tiempo para cada estado de la animación
-    step_duration = duration / steps / 4
-    
-    # Realizamos la animación sin limpiar la pantalla
-    for _ in range(steps):
-        for i in range(4):
-            # Volvemos al inicio de la línea con \r
-            dots = "." * i + " " * (3-i)
-            sys.stdout.write(f"\r{Fore.LIGHTYELLOW_EX}{message}{dots}{Fore.RESET}")
-            sys.stdout.flush()
-            time.sleep(step_duration)
-    
-    # Limpia la línea de carga al finalizar
-    sys.stdout.write("\r" + " " * (len(message) + 5) + "\r")
+    for i in range(steps):
+        sys.stdout.write(f"\r{message}" + "." * (i + 1) + " " * (3 - i))
+        sys.stdout.flush()
+        time.sleep(duration / steps)
+    sys.stdout.write("\r" + " " * (len(message) + 4) + "\r")
     sys.stdout.flush()
-    print("")
 
-def cmd_interface(current_account=None, accounts_count=0):
-    """Display an improved command interface with account info"""
-    # Display account status if available
+def cmd_interface(current_account=None, accounts_count=0, auto_kick_status=False, claim_rewards=True):
+    """Display an improved command interface with account info and auto kick status"""
+    # Header section with account info and status
+    print(Fore.WHITE + "\n" + "╔" + "═" * 68 + "╗")
+
+    # STATUS PANEL
+    # Current account info
     if current_account:
-        print("\n" + Fore.WHITE + Back.BLUE + f" CURRENT ACCOUNT: [{current_account[0]}] {current_account[1]} " + Back.RESET)
-        print(Fore.BLUE + f" Total Accounts: {accounts_count} " + Fore.RESET)
+        idx, name = current_account
+        print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "📝 Current Account: " + 
+              Fore.LIGHTGREEN_EX + f"[{idx}] {name}" + 
+              Fore.LIGHTCYAN_EX + f" ({accounts_count} total)" +
+              " " * (30 - len(f"[{idx}] {name}") - len(f" ({accounts_count} total)")) + Fore.WHITE + "║")
+    else:
+        print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "📝 Current Account: " + 
+              Fore.LIGHTRED_EX + "No account selected" + " " * 35 + Fore.WHITE + "║")
+
+    # Auto Kick Status
+    auto_kick_color = Fore.LIGHTGREEN_EX if auto_kick_status else Fore.LIGHTRED_EX
+    auto_kick_text = "ON" if auto_kick_status else "OFF"
+    auto_kick_emoji = "✅" if auto_kick_status else "❌"
+    rewards_text = Fore.LIGHTCYAN_EX + f" (with rewards)" if claim_rewards and auto_kick_status else (
+                   Fore.LIGHTCYAN_EX + f" (without rewards)" if auto_kick_status else "")
     
-    # Commands section
-    print("\n" + Fore.WHITE + Back.GREEN + " AVAILABLE COMMANDS " + Back.RESET)
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + f"🤖 Auto Kick: " + 
+          auto_kick_color + f"{auto_kick_emoji} {auto_kick_text}" + 
+          rewards_text + " " * (48 - len(rewards_text)) + Fore.WHITE + "║")
     
-    # Create a neat table for commands
-    commands = [
-        ("AltGr+L", "Leave Party", "Exits your current Fortnite party"),
-        ("AltGr+K", "Auto Kick", "Enables or disables auto kick feature"),
-        ("AltGr+S", "Skip", "Skip mission animation"),
-        ("AltGr+Up", "Launch Fortnite", "Opens Fortnite with current account"),
-        ("AltGr+Right", "Next Account", "Switch to next account or add new"),
-        ("AltGr+Left", "Previous Account", "Switch to previous account"),
-        ("AltGr+Down", "Check Account", "Show current account details"),
-        ("AltGr+Q", "FortniteDB", "Open FortniteDB.com in browser"),
-        ("AltGr+P", "Fast Drop", "Hold to activate fast drop script"),
-        ("AltGr+ESC", "Exit", "Close Better Fortnite")
-    ]
+    print(Fore.WHITE + "╠" + "═" * 68 + "╣")
     
-    # Define column widths for a consistent look
-    col_widths = [13, 20, 40]
+    # KEYBOARD SHORTCUTS
+    print(Fore.WHITE + "║" + Fore.LIGHTBLUE_EX + " 🎮 KEYBOARD SHORTCUTS " + Fore.WHITE + "═" * 46 + "║")
     
-    # Print header
-    print(Fore.CYAN + "┌" + "─" * col_widths[0] + "┬" + "─" * col_widths[1] + "┬" + "─" * col_widths[2] + "┐" + Fore.RESET)
-    print(Fore.CYAN + f"│{Fore.WHITE} {'HOTKEY':^{col_widths[0]-2}}{Fore.CYAN} │{Fore.WHITE} {'COMMAND':^{col_widths[1]-2}}{Fore.CYAN} │{Fore.WHITE} {'DESCRIPTION':^{col_widths[2]-2}}{Fore.CYAN} │" + Fore.RESET)
-    print(Fore.CYAN + "├" + "─" * col_widths[0] + "┼" + "─" * col_widths[1] + "┼" + "─" * col_widths[2] + "┤" + Fore.RESET)
+    # Account management section
+    print(Fore.WHITE + "║ " + Fore.LIGHTMAGENTA_EX + "┌─ ACCOUNT MANAGEMENT " + "─" * 46 + Fore.WHITE + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTMAGENTA_EX + "│ " + 
+          Fore.GREEN + "AltGr+DOWN  " + Fore.WHITE + "→ Show current account" + " " * 32 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTMAGENTA_EX + "│ " + 
+          Fore.GREEN + "AltGr+LEFT  " + Fore.WHITE + "→ Previous account" + " " * 36 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTMAGENTA_EX + "│ " + 
+          Fore.GREEN + "AltGr+RIGHT " + Fore.WHITE + "→ Next account" + " " * 39 + "║")
     
-    # Print each command with alternating row colors
-    for i, (hotkey, command, description) in enumerate(commands):
-        bg_color = Back.BLACK if i % 2 == 0 else ""
-        print(Fore.CYAN + f"│{bg_color} {Fore.LIGHTYELLOW_EX}{hotkey:<{col_widths[0]-2}}{Fore.RESET}{bg_color} {Fore.CYAN}│{bg_color} {Fore.LIGHTGREEN_EX}{command:<{col_widths[1]-2}}{Fore.RESET}{bg_color} {Fore.CYAN}│{bg_color} {Fore.WHITE}{description:<{col_widths[2]-2}}{Fore.RESET}{bg_color} {Fore.CYAN}│" + Fore.RESET)
+    # Game actions section
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "┌─ GAME ACTIONS " + "─" * 53 + Fore.WHITE + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "│ " + 
+          Fore.GREEN + "AltGr+UP    " + Fore.WHITE + "→ Launch Fortnite" + " " * 37 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "│ " + 
+          Fore.GREEN + "AltGr+S     " + Fore.WHITE + "→ Skip mission animation" + " " * 32 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "│ " + 
+          Fore.GREEN + "AltGr+L     " + Fore.WHITE + "→ Leave current party" + " " * 35 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTYELLOW_EX + "│ " + 
+          Fore.GREEN + "AltGr+P     " + Fore.WHITE + "→ Fast Drop (hold keys together)" + " " * 23 + "║")
     
-    # Print footer
-    print(Fore.CYAN + "└" + "─" * col_widths[0] + "┴" + "─" * col_widths[1] + "┴" + "─" * col_widths[2] + "┘" + Fore.RESET)
+    # Auto Kick controls - highlight based on current status
+    print(Fore.WHITE + "║ " + Fore.LIGHTGREEN_EX + "┌─ AUTO KICK CONTROLS " + "─" * 47 + Fore.WHITE + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTGREEN_EX + "│ " + 
+          Fore.GREEN + "AltGr+K     " + Fore.WHITE + "→ Toggle Auto Kick " + 
+          auto_kick_color + f"{auto_kick_emoji} {auto_kick_text}" + " " * 26 + Fore.WHITE + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTGREEN_EX + "│ " + 
+          Fore.GREEN + "AltGr+R     " + Fore.WHITE + "→ Toggle rewards claiming" + " " * 31 + "║")
     
-    # Tips section
-    print("\n" + Fore.WHITE + Back.MAGENTA + " TIPS " + Back.RESET)
-    print(Fore.MAGENTA + "• " + Fore.WHITE + "For fast account switching, use " + Fore.LIGHTYELLOW_EX + "AltGr+Left" + Fore.WHITE + " and " + Fore.LIGHTYELLOW_EX + "AltGr+Right" + Fore.RESET)
-    print(Fore.MAGENTA + "• " + Fore.WHITE + "Hold " + Fore.LIGHTYELLOW_EX + "AltGr+P" + Fore.WHITE + " to quickly drop items" + Fore.RESET)
+    # Utilities section
+    print(Fore.WHITE + "║ " + Fore.LIGHTCYAN_EX + "┌─ UTILITIES " + "─" * 56 + Fore.WHITE + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTCYAN_EX + "│ " + 
+          Fore.GREEN + "AltGr+Q     " + Fore.WHITE + "→ Open FortniteDB website" + " " * 31 + "║")
+    print(Fore.WHITE + "║ " + Fore.LIGHTCYAN_EX + "│ " + 
+          Fore.GREEN + "AltGr+ESC   " + Fore.WHITE + "→ Exit Better Fortnite" + " " * 34 + "║")
     
-    # Footer
-    print("\n" + Fore.MAGENTA + "═" * 90 + Fore.RESET)
-    print(Fore.LIGHTBLUE_EX + "Better Fortnite" + Fore.RESET + " - Made with " + Fore.RED + "♥" + Fore.RESET + " by @adrusss")
+    print(Fore.WHITE + "╚" + "═" * 68 + "╝" + Style.RESET_ALL)

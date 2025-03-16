@@ -11,7 +11,7 @@ init()
 from account.manager import load_all_accounts, authenticate, get_display_name_for_account
 from commands.refresh import command_leave_party, command_skip, command_play_fortnite, refresh_access_token
 from commands.stw import fast_drop
-from commands.auto_kick import toggle_auto_kick, toggle_claim_rewards, update_account
+from commands.auto_kick import toggle_auto_kick, toggle_claim_rewards, update_account, claim_rewards
 from ui.popup import popup_loop, update_popup
 from config import display_names
 from ui.cmd_interface import cmd_interface, better_fortnite_ascii, clear_screen, print_status, show_loading
@@ -30,7 +30,7 @@ fast_drop_thread = None
 fast_drop_monitor_thread = None
 keep_monitoring_keys = True  # Para controlar el ciclo del monitor de teclas
 
-# Auto kick variables
+# Auto kick variables - We'll use this flag to track UI status only
 auto_kick_active = False
 
 
@@ -55,7 +55,8 @@ def on_switch_account_down():
     better_fortnite_ascii()
     print_status(text, "success")
     update_popup(text)
-    cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+    cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list), 
+                  auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
 def on_switch_account_right():
     """Switch to next account or add a new one"""
@@ -131,7 +132,8 @@ def on_switch_account_right():
         text = f"Current account: [{idx}] {display_name}"
         print_status(text, "success")
         update_popup(text)
-        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list),
+                      auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
 def on_switch_account_left():
     """Switch to previous account"""
@@ -171,7 +173,8 @@ def on_switch_account_left():
         text = f"Current account: [{idx}] {display_name}"
         print_status(text, "success")
         update_popup(text)
-        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list),
+                      auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
 
 # ================================================================
@@ -248,9 +251,10 @@ def on_toggle_auto_kick():
         clear_screen()
         better_fortnite_ascii()
         print_status("No accounts available to execute command.", "error")
-        cmd_interface(accounts_count=len(accounts_list))
+        cmd_interface(accounts_count=len(accounts_list), auto_kick_status=False, claim_rewards=claim_rewards)
         return
-        
+    
+    # Toggle the UI indicator flag explicitly - this is the only place we change it
     auto_kick_active = not auto_kick_active
     
     if auto_kick_active:
@@ -263,28 +267,35 @@ def on_toggle_auto_kick():
         
         # Execute in separate thread to avoid blocking
         def start_auto_kick():
+            # Need to declare auto_kick_active as global here too
+            global auto_kick_active
+            
             # Pass full device_auth_data to toggle_auto_kick
             try:
+                # Call the backend function
                 toggle_auto_kick(device_auth_data)
                 
-                # Update UI after finished
+                # Update UI after finished - show auto_kick_active=True regardless of backend
                 idx, display_name = get_current_account_info()
                 clear_screen()
                 better_fortnite_ascii()
                 text = f"Auto Kick ACTIVADO para cuenta [{idx}] {display_name}"
                 print_status(text, "success")
                 update_popup(text, "success")
-                cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+                cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list),
+                              auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
             except Exception as e:
+                # On error, revert the UI flag
+                auto_kick_active = False
                 clear_screen()
                 better_fortnite_ascii()
                 print_status(f"Error al activar Auto Kick: {str(e)}", "error")
-                cmd_interface(current_account=get_current_account_info(), accounts_count=len(accounts_list))
-                auto_kick_active = False
+                cmd_interface(current_account=get_current_account_info(), accounts_count=len(accounts_list),
+                              auto_kick_status=False, claim_rewards=claim_rewards)
         
         threading.Thread(target=start_auto_kick, daemon=True).start()
     else:
-        # Just turn it off directly
+        # Just turn off the backend function
         toggle_auto_kick()
         idx, display_name = get_current_account_info()
         clear_screen()
@@ -292,7 +303,8 @@ def on_toggle_auto_kick():
         text = f"Auto Kick DESACTIVADO para cuenta [{idx}] {display_name}"
         print_status(text, "info")
         update_popup(text)
-        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list),
+                      auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
 def on_toggle_claim_rewards():
     """Toggle claim rewards option for Auto Kick"""
@@ -304,11 +316,14 @@ def on_toggle_claim_rewards():
         return
     
     toggle_claim_rewards()
+    from commands.auto_kick import claim_rewards
     idx, display_name = get_current_account_info()
-    
     clear_screen()
     better_fortnite_ascii()
-    cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+    print_status(f"Reclamar recompensas: {'ACTIVADO' if claim_rewards else 'DESACTIVADO'}", 
+                 "success" if claim_rewards else "info")
+    cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list),
+                  auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
 
 # ================================================================
@@ -519,7 +534,8 @@ def run_app():
 
     # Show interface with current account info
     idx, name = get_current_account_info()
-    cmd_interface(current_account=(idx, name), accounts_count=len(accounts_list))
+    cmd_interface(current_account=(idx, name), accounts_count=len(accounts_list),
+                  auto_kick_status=auto_kick_active, claim_rewards=claim_rewards)
 
     # Wait for exit hotkey
     keyboard.wait('f+g+h+t+y+d+s+q+d+u+i+p')
