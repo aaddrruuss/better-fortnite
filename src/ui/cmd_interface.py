@@ -67,6 +67,7 @@ def cmd_interface(current_account=None, accounts_count=0):
     # Create a neat table for commands
     commands = [
         ("AltGr+L", "Leave Party", "Exits your current Fortnite party"),
+        ("AltGr+K", "Auto Kick", "Enables or disables auto kick feature"),
         ("AltGr+S", "Skip", "Skip mission animation"),
         ("AltGr+Up", "Launch Fortnite", "Opens Fortnite with current account"),
         ("AltGr+Right", "Next Account", "Switch to next account or add new"),

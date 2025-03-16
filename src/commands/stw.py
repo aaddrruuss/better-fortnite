@@ -2,13 +2,13 @@ import aiohttp
 import time
 import keyboard
 import pydirectinput
+import asyncio
 
 pydirectinput.PAUSE = 0
 
 # Coordenadas para la acción "fast drop"
 xMax, yMax = 1194, 600
 xDrop, yDrop = 799, 672
-
 
 async def OpenCardPackBatch(access_token: str, account_id: str):
     query_url = (

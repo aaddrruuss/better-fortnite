@@ -9,8 +9,9 @@ from colorama import init, Fore, Back, Style
 init()
 
 from account.manager import load_all_accounts, authenticate, get_display_name_for_account
-from commands.refresh import command_leave_party, command_skip, command_play_fortnite
+from commands.refresh import command_leave_party, command_skip, command_play_fortnite, refresh_access_token
 from commands.stw import fast_drop
+from commands.auto_kick import toggle_auto_kick, toggle_claim_rewards, update_account
 from ui.popup import popup_loop, update_popup
 from config import display_names
 from ui.cmd_interface import cmd_interface, better_fortnite_ascii, clear_screen, print_status, show_loading
@@ -28,6 +29,9 @@ fast_drop_active = False
 fast_drop_thread = None
 fast_drop_monitor_thread = None
 keep_monitoring_keys = True  # Para controlar el ciclo del monitor de teclas
+
+# Auto kick variables
+auto_kick_active = False
 
 
 # ================================================================
@@ -116,6 +120,11 @@ def on_switch_account_right():
         print_status(f"Switching to account [{idx}] {display_name}...", "info")
         time.sleep(0.5)  # Una pequeña pausa para dar feedback visual
         
+        # Actualizar Auto Kick con la nueva cuenta si está activo
+        if auto_kick_active:
+            device_auth_data = accounts_list[current_account_index][1]
+            update_account(device_auth_data)
+        
         clear_screen()
         better_fortnite_ascii()
         
@@ -150,6 +159,11 @@ def on_switch_account_left():
         better_fortnite_ascii()
         print_status(f"Switching to account [{idx}] {display_name}...", "info")
         time.sleep(0.5)  # Una pequeña pausa para dar feedback visual
+        
+        # Actualizar Auto Kick con la nueva cuenta si está activo
+        if auto_kick_active:
+            device_auth_data = accounts_list[current_account_index][1]
+            update_account(device_auth_data)
         
         clear_screen()
         better_fortnite_ascii()
@@ -224,6 +238,80 @@ def open_fortniteDB():
 
 
 # ================================================================
+# Auto Kick Functions
+# ================================================================
+def on_toggle_auto_kick():
+    """Toggle Auto Kick functionality on/off"""
+    global auto_kick_active, accounts_list, current_account_index
+    
+    if not accounts_list:
+        clear_screen()
+        better_fortnite_ascii()
+        print_status("No accounts available to execute command.", "error")
+        cmd_interface(accounts_count=len(accounts_list))
+        return
+        
+    auto_kick_active = not auto_kick_active
+    
+    if auto_kick_active:
+        clear_screen()
+        better_fortnite_ascii()
+        print_status("Activando Auto Kick...", "info")
+        
+        # Get the complete device_auth_data for current account
+        device_auth_data = accounts_list[current_account_index][1]
+        
+        # Execute in separate thread to avoid blocking
+        def start_auto_kick():
+            # Pass full device_auth_data to toggle_auto_kick
+            try:
+                toggle_auto_kick(device_auth_data)
+                
+                # Update UI after finished
+                idx, display_name = get_current_account_info()
+                clear_screen()
+                better_fortnite_ascii()
+                text = f"Auto Kick ACTIVADO para cuenta [{idx}] {display_name}"
+                print_status(text, "success")
+                update_popup(text, "success")
+                cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+            except Exception as e:
+                clear_screen()
+                better_fortnite_ascii()
+                print_status(f"Error al activar Auto Kick: {str(e)}", "error")
+                cmd_interface(current_account=get_current_account_info(), accounts_count=len(accounts_list))
+                auto_kick_active = False
+        
+        threading.Thread(target=start_auto_kick, daemon=True).start()
+    else:
+        # Just turn it off directly
+        toggle_auto_kick()
+        idx, display_name = get_current_account_info()
+        clear_screen()
+        better_fortnite_ascii()
+        text = f"Auto Kick DESACTIVADO para cuenta [{idx}] {display_name}"
+        print_status(text, "info")
+        update_popup(text)
+        cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+
+def on_toggle_claim_rewards():
+    """Toggle claim rewards option for Auto Kick"""
+    if not accounts_list:
+        clear_screen()
+        better_fortnite_ascii()
+        print_status("No accounts available to execute command.", "error")
+        cmd_interface(accounts_count=len(accounts_list))
+        return
+    
+    toggle_claim_rewards()
+    idx, display_name = get_current_account_info()
+    
+    clear_screen()
+    better_fortnite_ascii()
+    cmd_interface(current_account=(idx, display_name), accounts_count=len(accounts_list))
+
+
+# ================================================================
 # Fast Drop Functions
 # ================================================================
 def fast_drop_loop():
@@ -249,7 +337,7 @@ def monitor_fast_drop_keys():
                 fast_drop_thread.start()
         else:
             # Si alguna tecla se suelta y Fast Drop está activo, desactivarlo
-            if fast_drop_active:
+            if (fast_drop_active):
                 fast_drop_active = False
                 update_popup("Fast Drop DEACTIVATED", "success")
                 
@@ -290,6 +378,12 @@ def register_hotkeys():
     # Utility commands
     keyboard.add_hotkey('alt gr+esc', close_program)      # Exit program
     keyboard.add_hotkey('alt gr+q', open_fortniteDB)      # Open FortniteDB website
+
+    # Auto Kick: Alt Gr + K
+    keyboard.add_hotkey('alt gr+k', on_toggle_auto_kick)
+    
+    # Toggle Claim Rewards: Alt Gr + R
+    keyboard.add_hotkey('alt gr+r', on_toggle_claim_rewards)
 
     # Para Fast Drop usamos un enfoque diferente basado en monitoreo continuo
     # en lugar de hotkeys tradicionales
